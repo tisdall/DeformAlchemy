@@ -9,6 +9,15 @@ from deform_bootstrap.widget import (ChosenMultipleWidget,
                                      ChosenSingleWidget)
 from pyramid.path import DottedNameResolver
 
+import sys
+
+# True if we are running on Python 3.
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    unicode = str
+else:
+    unicode = unicode
 
 class SQLAlchemyWidget(object):
 
@@ -22,10 +31,9 @@ class SQLAlchemyWidget(object):
     def populate(self, session, *filters):
 
         class_ = self.class_
-        if isinstance(class_, basestring):
-            # FIXME: replace DottedNameResolver
-            # to remove pyramid from setup requires.
-            class_ = DottedNameResolver().resolve(class_)
+        # FIXME: replace DottedNameResolver
+        # to remove pyramid from setup requires.
+        class_ = DottedNameResolver().maybe_resolve(class_)
 
         query = session.query(getattr(class_, self.value),
                               getattr(class_, self.label))
