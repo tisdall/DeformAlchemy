@@ -15,9 +15,9 @@ import sys
 PY3 = sys.version_info[0] == 3
 
 if PY3:
-    unicode = str
+    str = str
 else:
-    unicode = unicode
+    str = unicode
 
 class SQLAlchemyWidget(object):
 
@@ -35,11 +35,11 @@ class SQLAlchemyWidget(object):
         # to remove pyramid from setup requires.
         class_ = DottedNameResolver().maybe_resolve(class_)
 
-        query = session.query(getattr(class_, self.value),
-                              getattr(class_, self.label))
-        if not self.order_by is None:
+        #query = session.query(getattr(class_, self.value),
+        #                      getattr(class_, self.label))
+        query = session.query(class_)
+        if self.order_by is not None:
             order_by = getattr(class_, self.order_by)
-
         else:
             order_by = None
 
@@ -47,7 +47,7 @@ class SQLAlchemyWidget(object):
             filters = self.filters
 
         query = query.filter(*filters).order_by(order_by).distinct()
-        self.values = [('', '')] + [(unicode(t[0]), unicode(t[1])) for t in query.all()]
+        self.values = [('', '')] + [(str(getattr(t, self.value)), str(getattr(t, self.label))) for t in query.all()]
 
 
 class SQLAlchemySelectWidget(SQLAlchemyWidget, SelectWidget):
